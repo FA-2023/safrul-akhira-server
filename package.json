@@ -1,0 +1,37 @@
+{
+  "name": "safrul-akhira",
+  "version": "1.0.0",
+  "description": "Node js APIs sever for Al-Safrul-Alhira mobile app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./dist/main.js",
+    "dev": "nodemon ./index.js",
+    "build": "webpack --mode production && npm run start"
+  },
+  "keywords": [
+    "apis",
+    "nodejs",
+    "express"
+  ],
+  "author": "Fatima Saleem",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.3",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^2.0.22"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "babel-loader": "^9.1.2",
+    "webpack": "^5.77.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
