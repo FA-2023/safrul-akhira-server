@@ -8,10 +8,26 @@ require("dotenv").config();
 app.use(bodyParser.json());
 
 const userRoutes = require("./routes/User.routes");
-const serviceRoutes = require("./routes/Service.routes");
+const categoryRoutes = require("./routes/Category.routes");
+const productRoutes = require("./routes/Product.routes");
 
 // connect mongodb
 database.connectToDb();
+
+// express session store
+app.use(
+  require("express-session")({
+    secret: process.env.SESSION_SECRET,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 60, // 60 days
+      // httpOnly: false,
+    },
+    resave: false,
+    saveUninitialized: false,
+    // store: database.store,
+    store: database.store,
+  })
+);
 
 app.use(
   cors({
@@ -23,7 +39,17 @@ app.use(
 );
 
 app.use("/api/users", userRoutes);
-app.use("/api/services", serviceRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
+
+app.use("/uploads", express.static(__dirname + "/uploads"));
+
+app.use("*", (req, res) => {
+  res.status(404).json({
+    status: 404,
+    message: "not found",
+  });
+});
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {

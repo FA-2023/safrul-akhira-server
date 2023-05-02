@@ -1,7 +1,7 @@
 const User = require("../models/User.model");
 
 exports.signup = async (req, res) => {
-  const { username, email, password, confirmPassword, phone } = req.body;
+  const { username, email, password, confirmPassword, phone, role } = req.body;
 
   if (!username || !email || !password || !confirmPassword) {
     return res.status(400).json({
@@ -14,6 +14,14 @@ exports.signup = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "password & confirmPassword are not the same",
+      status: 400,
+    });
+  }
+
+  if (role === "vendor" && !phone) {
+    return res.status(400).json({
+      success: false,
+      message: "Phone number is required for the vendor registration.",
       status: 400,
     });
   }
@@ -39,6 +47,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
+      role: role ? role : null,
     });
 
     // Save the user to the database
@@ -69,7 +78,7 @@ exports.login = async (req, res) => {
 
   try {
     // Check if user exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email, isDeleted: false });
     if (!userExists) {
       return res.status(401).send({
         success: false,

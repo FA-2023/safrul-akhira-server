@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   // reject a file
-  console.log(file);
+  // console.log(file);
   if (validTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
