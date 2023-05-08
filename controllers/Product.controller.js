@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 exports.addProduct = async (req, res) => {
-  const { name, vendorId, categoryId, ...rest } = req.body;
+  const { name, vendorId, categoryId, images, ...rest } = req.body;
   if (!name || !vendorId || !categoryId) {
     return res.status(400).json({
       successL: false,
@@ -12,16 +12,23 @@ exports.addProduct = async (req, res) => {
     });
   }
 
-  if (!req.files && !req.files.length) {
+  if (!images && !images.length) {
     return res.status(400).json({
       successL: false,
       status: 400,
       message: "At least one product image is required!",
     });
   }
+  // if (!req.files && !req.files.length) {
+  //   return res.status(400).json({
+  //     successL: false,
+  //     status: 400,
+  //     message: "At least one product image is required!",
+  //   });
+  // }
 
   // save images //
-  const filenames = saveProductImages(req.files, name);
+  const filenames = saveProductImages(images, name);
 
   const product = new Product({
     vendor: vendorId,
@@ -314,7 +321,7 @@ const saveProductImages = (files = [], name) => {
 
   files.forEach((file, idx) => {
     // file extension
-    const ext = getExtension(file.originalname);
+    const ext = "png";
 
     // append image name for saving
     filenames.push(`${fileSlugName}-${idx + 1}.${ext}`);
@@ -326,17 +333,55 @@ const saveProductImages = (files = [], name) => {
       `${fileSlugName}-${idx + 1}.${ext}`
     );
 
-    // file buffer
-    const fileData = fs.readFileSync(file.path);
-
-    // save file
-    fs.writeFile(imagePath, fileData, "binary", function (err) {
+    var bitmap = new Buffer.from(file, "base64");
+    // var bitmap = new Buffer(file, "base64");
+    // write buffer to file
+    fs.writeFileSync(imagePath, bitmap, function (err) {
       if (err) throw err;
       console.log("File saved.");
     });
+
+    // file buffer
+    // const fileData = fs.readFileSync(file, { encoding: "base64" });
+
+    // // save file
+    // fs.writeFile(imagePath, fileData, "binary", function (err) {
+    //   if (err) throw err;
+    //   console.log("File saved.");
+    // });
     // remove temp file
-    fs.unlinkSync(file.path);
+    // fs.unlinkSync(file.path);
   });
+  // // create image name
+  // const fileSlugName = name?.replace(/[^a-zA-Z0-9-_]/g, "")?.toLowerCase();
+
+  // const filenames = [];
+
+  // files.forEach((file, idx) => {
+  //   // file extension
+  //   const ext = getExtension(file.originalname);
+
+  //   // append image name for saving
+  //   filenames.push(`${fileSlugName}-${idx + 1}.${ext}`);
+
+  //   // image path
+  //   const imagePath = path.join(
+  //     __dirname,
+  //     "../uploads/images/products",
+  //     `${fileSlugName}-${idx + 1}.${ext}`
+  //   );
+
+  //   // file buffer
+  //   const fileData = fs.readFileSync(file.path);
+
+  //   // save file
+  //   fs.writeFile(imagePath, fileData, "binary", function (err) {
+  //     if (err) throw err;
+  //     console.log("File saved.");
+  //   });
+  //   // remove temp file
+  //   fs.unlinkSync(file.path);
+  // });
 
   return filenames;
 };
