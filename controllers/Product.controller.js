@@ -3,12 +3,12 @@ const fs = require("fs");
 const path = require("path");
 
 exports.addProduct = async (req, res) => {
-  const { name, vendorId, categoryId, images, ...rest } = req.body;
-  if (!name || !vendorId || !categoryId) {
+  const { name, price, vendorId, categoryId, images, ...rest } = req.body;
+  if (!name || !vendorId || !categoryId || !price) {
     return res.status(400).json({
       successL: false,
       status: 400,
-      message: "Product name, vendorId & categoryId are required!",
+      message: "Product name, price, vendorId & categoryId are required!",
     });
   }
 
