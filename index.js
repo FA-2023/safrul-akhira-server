@@ -5,7 +5,7 @@ const database = require("./config/database");
 const cors = require("cors");
 require("dotenv").config();
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
 
 const userRoutes = require("./routes/User.routes");
 const categoryRoutes = require("./routes/Category.routes");

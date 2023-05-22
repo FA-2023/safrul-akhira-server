@@ -34,6 +34,7 @@ exports.addProduct = async (req, res) => {
     vendor: vendorId,
     category: categoryId,
     name,
+    price,
     images: filenames,
     ...rest,
   });
@@ -313,6 +314,17 @@ const getExtension = (filename) => {
   return filename.split(".").pop();
 };
 
+function getImageExtension(base64String) {
+  const regex = /^data:image\/(\w+);base64,/; // Regex pattern to match the image format
+  const match = base64String.match(regex);
+
+  if (match && match[1]) {
+    return match[1]; // Return the image extension
+  }
+  // Return a default extension or handle error cases
+  return "png"; // You can set a default extension (e.g., 'jpg') or handle error cases as needed
+}
+
 const saveProductImages = (files = [], name) => {
   // create image name
   const fileSlugName = name?.replace(/[^a-zA-Z0-9-_]/g, "")?.toLowerCase();
@@ -321,7 +333,8 @@ const saveProductImages = (files = [], name) => {
 
   files.forEach((file, idx) => {
     // file extension
-    const ext = "png";
+    const ext = getImageExtension(file);
+    console.log("Image extension:", ext);
 
     // append image name for saving
     filenames.push(`${fileSlugName}-${idx + 1}.${ext}`);
@@ -333,12 +346,22 @@ const saveProductImages = (files = [], name) => {
       `${fileSlugName}-${idx + 1}.${ext}`
     );
 
-    var bitmap = new Buffer.from(file, "base64");
+    const imageBuffer = Buffer.from(
+      file.replace(/^data:image\/(?:\w+);base64,/i, ""),
+      "base64"
+    );
+    console.log(
+      "🚀 ~ file: Product.controller.js:350 ~ files.forEach ~ imageBuffer:",
+      imageBuffer
+    );
     // var bitmap = new Buffer(file, "base64");
     // write buffer to file
-    fs.writeFileSync(imagePath, bitmap, function (err) {
-      if (err) throw err;
-      console.log("File saved.");
+    fs.writeFile(imagePath, imageBuffer, (err) => {
+      if (err) {
+        console.error("Error saving image:", err);
+      } else {
+        console.log("Image saved successfully:", imagePath);
+      }
     });
 
     // file buffer
