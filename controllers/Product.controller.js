@@ -67,6 +67,7 @@ exports.getAllProducts = async (req, res) => {
     success: true,
     status: 200,
     message: "",
+    count: docs.length,
     data: docs,
   });
 };
@@ -327,8 +328,8 @@ function getImageExtension(base64String) {
 
 const saveProductImages = (files = [], name) => {
   // create image name
-  const fileSlugName = name?.replace(/[^a-zA-Z0-9-_]/g, "")?.toLowerCase();
-
+  let fileSlugName = name?.replace(/[^a-zA-Z0-9-_]/g, "")?.toLowerCase();
+  fileSlugName += `.${Date.now()}`;
   const filenames = [];
 
   files.forEach((file, idx) => {
@@ -346,10 +347,12 @@ const saveProductImages = (files = [], name) => {
       `${fileSlugName}-${idx + 1}.${ext}`
     );
 
-    const imageBuffer = Buffer.from(
-      file.replace(/^data:image\/(?:\w+);base64,/i, ""),
-      "base64"
-    );
+    // console.log(
+    //   "file.replace(/^data:image/(?:w+);base64,/i",
+    //   file.replace(/^data:image\/(?:\w+);base64,/i)
+    // );
+
+    const imageBuffer = Buffer.from(file, "base64");
     console.log(
       "🚀 ~ file: Product.controller.js:350 ~ files.forEach ~ imageBuffer:",
       imageBuffer
