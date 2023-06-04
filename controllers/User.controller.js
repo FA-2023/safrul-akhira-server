@@ -1,7 +1,15 @@
 const User = require("../models/User.model");
 
 exports.signup = async (req, res) => {
-  const { username, email, password, confirmPassword, phone, role } = req.body;
+  const {
+    username,
+    email,
+    password,
+    confirmPassword,
+    phone,
+    role,
+    profile_pic,
+  } = req.body;
 
   if (!username || !email || !password || !confirmPassword) {
     return res.status(400).json({
@@ -49,6 +57,11 @@ exports.signup = async (req, res) => {
       phone,
       role: role ? role : null,
     });
+
+    if (profile_pic) {
+      const profilePicUrl = saveProfilePic(profile_pic, username);
+      newUser.profile_pic = profilePicUrl;
+    }
 
     // Save the user to the database
     await newUser.save();
@@ -121,4 +134,49 @@ exports.login = async (req, res) => {
     console.log(error);
     res.status(500).send(`Internal server error: ${error}`);
   }
+};
+
+function getImageExtension(base64String) {
+  const regex = /^data:image\/(\w+);base64,/; // Regex pattern to match the image format
+  const match = base64String.match(regex);
+
+  if (match && match[1]) {
+    return match[1]; // Return the image extension
+  }
+  // Return a default extension or handle error cases
+  return "png"; // You can set a default extension (e.g., 'jpg') or handle error cases as needed
+}
+
+const saveProfilePic = (file = "", name) => {
+  // create image name
+  let fileSlugName = name?.replace(/[^a-zA-Z0-9-_]/g, "")?.toLowerCase();
+
+  fileSlugName += `.${Date.now()}`;
+  // file extension
+  const ext = getImageExtension(file);
+  //
+  console.log("Image extension:", ext);
+  // image path
+  const imagePath = path.join(
+    __dirname,
+    "../uploads/images/users",
+    `${fileSlugName}.${ext}`
+  );
+
+  const imageBuffer = Buffer.from(file, "base64");
+  console.log(
+    "🚀 ~ file: User.controller.js:154 ~ saveProfilePic ~ imageBuffer:",
+    imageBuffer
+  );
+  // var bitmap = new Buffer(file, "base64");
+  // write buffer to file
+  fs.writeFile(imagePath, imageBuffer, (err) => {
+    if (err) {
+      console.error("Error saving image:", err);
+    } else {
+      console.log("Image saved successfully:", imagePath);
+    }
+  });
+
+  return fileSlugName;
 };
