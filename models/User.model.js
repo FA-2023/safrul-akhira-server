@@ -9,7 +9,15 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
   phone: { type: String },
-  profile_pic: {
+  profilePic: {
+    type: String,
+    default: "",
+  },
+  cnicFront: {
+    type: String,
+    default: "",
+  },
+  cnicBack: {
     type: String,
     default: "",
   },

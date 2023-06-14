@@ -2,6 +2,58 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 require("dotenv").config();
 
+exports.validateSignup = async (req, res, next) => {
+  const {
+    username,
+    email,
+    password,
+    confirmPassword,
+    phone,
+    role,
+    cnicFront,
+    cnicBack,
+  } = req.body;
+
+  // check required data
+  if (!username || !email || !password || !confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "username, email, password & confirmPassword are required",
+      status: 400,
+    });
+  }
+  // check passwords
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "password & confirmPassword are not the same",
+      status: 400,
+    });
+  }
+
+  // phone is required for vendor
+  if (role === "vendor" && !phone) {
+    return res.status(400).json({
+      success: false,
+      message: "Phone number is required for the vendor registration.",
+      status: 400,
+    });
+  }
+
+  // cnic is required for vendor
+  if (role === "vendor" && (!cnicFront || !cnicBack)) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "`cnicFront` & `cnicBack` are required for the vendor registration.",
+      status: 400,
+    });
+  }
+
+  // proceed
+  next();
+};
+
 exports.auth = async (req, res, next) => {
   const token = req.header("token");
   if (!token) {

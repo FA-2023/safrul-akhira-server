@@ -1,3 +1,5 @@
+const path = require("path");
+const fs = require("fs");
 const User = require("../models/User.model");
 
 exports.signup = async (req, res) => {
@@ -5,34 +7,14 @@ exports.signup = async (req, res) => {
     username,
     email,
     password,
-    confirmPassword,
     phone,
     role,
-    profile_pic,
+    profilePic,
+    cnicFront,
+    cnicBack,
   } = req.body;
 
-  if (!username || !email || !password || !confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "username, email, password & confirmPassword are required",
-      status: 400,
-    });
-  }
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "password & confirmPassword are not the same",
-      status: 400,
-    });
-  }
-
-  if (role === "vendor" && !phone) {
-    return res.status(400).json({
-      success: false,
-      message: "Phone number is required for the vendor registration.",
-      status: 400,
-    });
-  }
+  let IdFrontUrl, idBackUrl;
 
   try {
     // Check if user already exists
@@ -58,9 +40,18 @@ exports.signup = async (req, res) => {
       role: role ? role : null,
     });
 
-    if (profile_pic) {
-      const profilePicUrl = saveProfilePic(profile_pic, username);
-      newUser.profile_pic = profilePicUrl;
+    // save user profile picture if exists
+    if (profilePic) {
+      const profilePicUrl = saveProfilePic(profilePic, username);
+      newUser.profilePic = profilePicUrl;
+    }
+
+    // save cnic pictures
+    if (role === "vendor") {
+      IdFrontUrl = saveProfilePic(cnicFront, username + "_cnic_front_");
+      idBackUrl = saveProfilePic(cnicBack, username + "_cnic_back_");
+      newUser.cnicFront = IdFrontUrl;
+      newUser.cnicBack = idBackUrl;
     }
 
     // Save the user to the database
@@ -151,23 +142,23 @@ const saveProfilePic = (file = "", name) => {
   // create image name
   let fileSlugName = name?.replace(/[^a-zA-Z0-9-_]/g, "")?.toLowerCase();
 
-  fileSlugName += `.${Date.now()}`;
   // file extension
   const ext = getImageExtension(file);
   //
-  console.log("Image extension:", ext);
+  fileSlugName += `_${Date.now()}.${ext}`;
   // image path
+  console.log(
+    "🚀 ~ file: User.controller.js:150 ~ saveProfilePic ~ fileSlugName:",
+    fileSlugName
+  );
   const imagePath = path.join(
     __dirname,
     "../uploads/images/users",
-    `${fileSlugName}.${ext}`
+    fileSlugName
   );
 
   const imageBuffer = Buffer.from(file, "base64");
-  console.log(
-    "🚀 ~ file: User.controller.js:154 ~ saveProfilePic ~ imageBuffer:",
-    imageBuffer
-  );
+
   // var bitmap = new Buffer(file, "base64");
   // write buffer to file
   fs.writeFile(imagePath, imageBuffer, (err) => {
