@@ -10,6 +10,8 @@ app.use(bodyParser.json({ limit: "50mb" }));
 const userRoutes = require("./routes/User.routes");
 const categoryRoutes = require("./routes/Category.routes");
 const productRoutes = require("./routes/Product.routes");
+// orders
+const orderRoutes = require("./routes/Order.routes");
 
 // connect mongodb
 database.connectToDb();
@@ -41,6 +43,7 @@ app.use(
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
 

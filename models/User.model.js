@@ -4,39 +4,42 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
-  username: { type: String, required: true },
-  email: { type: String, required: true, unique: true, trim: true },
-  password: { type: String, required: true },
-  phone: { type: String },
-  profilePic: {
-    type: String,
-    default: "",
+const userSchema = new Schema(
+  {
+    username: { type: String, required: true },
+    email: { type: String, required: true, unique: true, trim: true },
+    password: { type: String, required: true },
+    phone: { type: String },
+    profilePic: {
+      type: String,
+      default: "",
+    },
+    cnicFront: {
+      type: String,
+      default: "",
+    },
+    cnicBack: {
+      type: String,
+      default: "",
+    },
+    role: {
+      type: String,
+      default: "customer",
+      enum: ["admin", "customer", "vendor", "guest", "user"],
+    },
+    cnic: String,
+    address: String,
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
-  cnicFront: {
-    type: String,
-    default: "",
-  },
-  cnicBack: {
-    type: String,
-    default: "",
-  },
-  role: {
-    type: String,
-    default: "customer",
-    enum: ["admin", "customer", "vendor", "guest", "user"],
-  },
-  cnic: String,
-  address: String,
-  isDeleted: {
-    type: Boolean,
-    default: false,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-});
+  { toJSON: { virtuals: true } }
+);
 
 // virtual
 userSchema
@@ -49,6 +52,10 @@ userSchema
   .get(function () {
     return this._password;
   });
+
+userSchema.virtual("profilePicUrl").get(function () {
+  return `https://safrul-akhira.onrender.com/uploads/images/users/${this.profilePic}`;
+});
 
 // methods
 userSchema.methods = {

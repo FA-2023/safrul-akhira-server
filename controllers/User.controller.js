@@ -18,11 +18,12 @@ exports.signup = async (req, res) => {
 
   try {
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const exists = await User.countDocuments({ email });
+
+    if (exists > 0) {
       return res.status(409).json({
         success: false,
-        message: "email already linked with a user account",
+        message: "Email already linked with a user account",
         status: 409,
       });
     }
@@ -124,6 +125,32 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).send(`Internal server error: ${error}`);
+  }
+};
+
+exports.getMyProfile = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const user = await User.findOne({ _id: id }).select("-password");
+    if (user) {
+      return res.status(200).json({
+        success: true,
+        status: 200,
+        data: user,
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        status: 400,
+        message: "User not found!",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      status: 400,
+      message: "User not found!",
+    });
   }
 };
 
