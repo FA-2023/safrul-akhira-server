@@ -70,7 +70,7 @@ exports.getMyOrders = async (req, res) => {
   try {
     const docs = await Order.find({
       user: userId,
-    });
+    }).populate(["product", { path: "vendor", select: "-password" }]);
 
     return res.status(200).json({
       success: true,
@@ -104,7 +104,7 @@ exports.getVendorOrders = async (req, res) => {
   try {
     const docs = await Order.find({
       vendor: vendorId,
-    });
+    }).populate(["product", { path: "user", select: "-password" }]);
 
     return res.status(200).json({
       success: true,
@@ -176,7 +176,7 @@ exports.getCompletedOrders = async (req, res) => {
     const docs = await Order.find({
       vendor: vendorId,
       status: "completed",
-    });
+    }).populate(["product", { path: "user", select: "-password" }]);
 
     return res.status(200).json({
       success: true,
@@ -211,7 +211,7 @@ exports.getPendingOrders = async (req, res) => {
     const docs = await Order.find({
       vendor: vendorId,
       status: "pending",
-    });
+    }).populate(["product", { path: "user", select: "-password" }]);
 
     return res.status(200).json({
       success: true,
